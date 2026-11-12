@@ -104,8 +104,16 @@ jobs:
           tagged=$(gh api "repos/$SOURCE_REPO/tags" --paginate --jq ".[] | select(.commit.sha == \"$SHA\") | .name" | head -1)
           if [ -n "$tagged" ]; then echo "main ($SHA) is already released as $tagged"; echo "release=false" >> "$GITHUB_OUTPUT"; exit 0; fi
 
+          # Right after a merge GitHub may not have linked the commit to its PR yet: then read
+          # the PR number from "Merge pull request #N …" and use that PR's title.
           title=$(gh api "repos/$SOURCE_REPO/commits/$SHA/pulls" --jq '.[0].title // empty')
-          title="${title:-$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]')}"
+          if [ -z "$title" ]; then
+            subject=$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]')
+            if [[ "$subject" =~ ^Merge\ pull\ request\ \#([0-9]+) ]]; then
+              title=$(gh api "repos/$SOURCE_REPO/pulls/${BASH_REMATCH[1]}" --jq '.title')
+            fi
+            title="${title:-$subject}"
+          fi
           version=$(.github/scripts/next-version.sh "$title" "$LATEST")
           echo "Releasing $SHA ($title) as v$version"
           { echo "release=true"; echo "version=$version"; } >> "$GITHUB_OUTPUT"
