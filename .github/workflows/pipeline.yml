@@ -12,7 +12,8 @@ name: Pipeline
 # 2. when main has a new merge: releases it, reusing the PR's installers when the merged
 #    tree is exactly what the PR built and the version still matches (else builds), publishes
 #    the release here with fixed names, and tags vX.Y.Z on chat-code;
-# 3. deploys the site (GitHub Pages, gh-pages branch) whenever main changed.
+# 3. deploys the Firestore rules/indexes when they changed (before the site), then the site
+#    (GitHub Pages, gh-pages branch) whenever main changed.
 on:
   schedule:
     - cron: '*/10 * * * *'
@@ -48,6 +49,8 @@ jobs:
       reuse_run: ${{ steps.release.outputs.reuse_run }}
       artifact_prefix: ${{ steps.release.outputs.artifact_prefix }}
       deploy_site: ${{ steps.site.outputs.deploy }}
+      deploy_firestore: ${{ steps.firestore.outputs.deploy }}
+      firestore_sha: ${{ steps.firestore.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4 # for .github/scripts
 
@@ -136,6 +139,23 @@ jobs:
           deployed=$(curl -fsSL "${SITE_URL}status.json?t=$(date +%s)" | jq -r '.sourceSha // empty' || true)
           echo "Deployed: ${deployed:-unknown}, main: $SHA"
           echo "deploy=$([ "$deployed" != "$SHA" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # Fingerprint = git blob ids of the Firestore config at main; deploy only when it differs
+      # from the one recorded in the live status.json.
+      - name: Firestore deploy needed?
+        id: firestore
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          SHA: ${{ steps.main.outputs.sha }}
+        run: |
+          set -euo pipefail
+          fingerprint=$(for f in firebase.json firestore.rules firestore.indexes.json; do
+            gh api "repos/$SOURCE_REPO/contents/$f?ref=$SHA" --jq .sha
+          done | sha1sum | cut -c1-40)
+          deployed=$(curl -fsSL "${SITE_URL}status.json?t=$(date +%s)" | jq -r '.firestoreSha // empty' || true)
+          echo "Firestore config: $fingerprint (live: ${deployed:-unknown})"
+          echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
+          echo "deploy=$([ "$deployed" != "$fingerprint" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   pr-build:
     name: 'PR #${{ matrix.pr.number }}'
@@ -256,9 +276,51 @@ jobs:
           SHA: ${{ needs.plan.outputs.main_sha }}
         run: gh api -X POST "repos/$SOURCE_REPO/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$SHA"
 
-  site:
+  # Rules/indexes go live before the app that relies on them. Uses a service account limited
+  # to Firebase Rules Admin + Cloud Datastore Index Admin (secret FIREBASE_SERVICE_ACCOUNT).
+  firestore:
+    name: firestore rules
     needs: plan
-    if: needs.plan.outputs.deploy_site == 'true'
+    if: needs.plan.outputs.deploy_firestore == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ needs.plan.outputs.main_sha }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          persist-credentials: false
+          sparse-checkout: |
+            firebase.json
+            .firebaserc
+            firestore.rules
+            firestore.indexes.json
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy rules and indexes
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SERVICE_ACCOUNT" ]; then
+            echo "::error::Missing the FIREBASE_SERVICE_ACCOUNT secret (see README)."; exit 1
+          fi
+          key="$RUNNER_TEMP/firebase-sa.json"
+          printf '%s' "$SERVICE_ACCOUNT" > "$key"
+          GOOGLE_APPLICATION_CREDENTIALS="$key" npx --yes firebase-tools@15 deploy \
+            --only firestore --non-interactive
+          rm -f "$key"
+
+  site:
+    needs: [plan, firestore]
+    # After the Firestore deploy when there was one; never if it failed.
+    if: >-
+      always() && needs.plan.outputs.deploy_site == 'true' &&
+      (needs.firestore.result == 'success' || needs.firestore.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -284,13 +346,14 @@ jobs:
         env:
           TOKEN: ${{ secrets.SOURCE_TOKEN }}
           SHA: ${{ needs.plan.outputs.main_sha }}
+          FIRESTORE_SHA: ${{ needs.plan.outputs.firestore_sha }}
         run: |
           set -euo pipefail
           expires=$(curl -sSI -H "Authorization: Bearer $TOKEN" "https://api.github.com/repos/$SOURCE_REPO" \
             | tr -d '\r' | awk -F': ' 'tolower($1)=="github-authentication-token-expiration" {print $2}')
           iso=null
           if [ -n "$expires" ]; then iso="\"$(date -u -d "$expires" +%Y-%m-%dT%H:%M:%SZ)\""; fi
-          echo "{\"tokenExpiresAt\": $iso, \"sourceSha\": \"$SHA\"}" > dist/chat-code/browser/status.json
+          echo "{\"tokenExpiresAt\": $iso, \"sourceSha\": \"$SHA\", \"firestoreSha\": \"$FIRESTORE_SHA\"}" > dist/chat-code/browser/status.json
           cat dist/chat-code/browser/status.json
 
       # GitHub Pages has no SPA rewrites: deep links fall back to 404.html (the app itself).
