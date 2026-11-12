@@ -191,14 +191,17 @@ jobs:
           run-id: ${{ needs.plan.outputs.reuse_run }}
           github-token: ${{ github.token }}
 
-      # Fixed names (what the landing links to) plus versioned copies.
-      - name: Name the installers
+      # Fixed names (what the landing links to) plus versioned copies, and latest.json: what
+      # installed apps read to update themselves (versioned URLs + signatures).
+      - name: Name the installers and write latest.json
         run: |
           set -euo pipefail
           mkdir release
           exe=$(find artifacts -name '*-setup.exe' | head -1)
           msi=$(find artifacts -name '*.msi' | head -1)
           dmg=$(find artifacts -name '*.dmg' | head -1)
+          app=$(find artifacts -name '*.app.tar.gz' | head -1)
+          for f in "$exe" "$msi" "$app"; do [ -s "$f.sig" ] || { echo "Missing update signature for $f"; exit 1; }; done
           case "$exe" in *"_${VERSION}_"*) ;; *) echo "Installer $exe is not version $VERSION"; exit 1 ;; esac
           cp "$exe" release/CodeCall-Windows-Setup.exe
           cp "$msi" release/CodeCall-Windows.msi
@@ -206,7 +209,29 @@ jobs:
           cp "$exe" "release/CodeCall-${VERSION}-Windows-Setup.exe"
           cp "$msi" "release/CodeCall-${VERSION}-Windows.msi"
           cp "$dmg" "release/CodeCall-${VERSION}-macOS.dmg"
+          cp "$app" "release/CodeCall-${VERSION}-macOS.app.tar.gz"
+
+          base="https://github.com/$GITHUB_REPOSITORY/releases/download/v$VERSION"
+          jq -n \
+            --arg version "$VERSION" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg exe_url "$base/CodeCall-${VERSION}-Windows-Setup.exe" --rawfile exe_sig "$exe.sig" \
+            --arg msi_url "$base/CodeCall-${VERSION}-Windows.msi" --rawfile msi_sig "$msi.sig" \
+            --arg app_url "$base/CodeCall-${VERSION}-macOS.app.tar.gz" --rawfile app_sig "$app.sig" \
+            '{
+              version: $version,
+              notes: "Code Call \($version)",
+              pub_date: $date,
+              platforms: {
+                "windows-x86_64": { url: $exe_url, signature: $exe_sig },
+                "windows-x86_64-nsis": { url: $exe_url, signature: $exe_sig },
+                "windows-x86_64-msi": { url: $msi_url, signature: $msi_sig },
+                "darwin-aarch64": { url: $app_url, signature: $app_sig },
+                "darwin-x86_64": { url: $app_url, signature: $app_sig }
+              }
+            }' > release/latest.json
           ls -la release
+          jq '.platforms | map_values(.url)' release/latest.json
 
       - name: Publish the release
         env:
