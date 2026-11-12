@@ -79,19 +79,28 @@ jobs:
       # The installers carry the version they will be released as (tauri reads package.json).
       - run: npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
 
-      # Runs `npm run build` (beforeBuildCommand) and bundles the installers. Unsigned on
-      # purpose (study project): SmartScreen / Gatekeeper warn on first launch.
+      # Runs `npm run build` (beforeBuildCommand) and bundles the installers. Not code-signed
+      # (study project): SmartScreen / Gatekeeper warn on first launch. The *updates* are
+      # signed with our updater key, so installed apps only accept our own builds.
       - uses: tauri-apps/tauri-action@v0
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: ${{ matrix.args }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_prefix }}-${{ matrix.name }}
+          # Installers, plus the auto-update packages and their signatures.
           path: |
             src-tauri/target/**/release/bundle/msi/*.msi
+            src-tauri/target/**/release/bundle/msi/*.msi.sig
             src-tauri/target/**/release/bundle/nsis/*.exe
+            src-tauri/target/**/release/bundle/nsis/*.exe.sig
             src-tauri/target/**/release/bundle/dmg/*.dmg
+            src-tauri/target/**/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/**/release/bundle/macos/*.app.tar.gz.sig
           if-no-files-found: error
           retention-days: 14
 
