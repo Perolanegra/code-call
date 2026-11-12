@@ -1,0 +1,285 @@
+name: Pipeline
+
+# CI/CD for Code Call, run here because Actions minutes are free on this public repo.
+# The source repo (Perolanegra/chat-code) is private: it is only checked out inside the
+# build jobs, with SOURCE_TOKEN (fine-grained; on chat-code: Contents read/write,
+# Commit statuses read/write, Pull requests read).
+#
+# Every 10 minutes (or on demand) it looks at chat-code and:
+# 1. builds the installers of open, non-draft PRs not built yet (version from the PR title:
+#    "(feat): …" → minor, else patch) and reports the result as the "code-call/installers"
+#    check on the PR;
+# 2. when main has a new merge: releases it, reusing the PR's installers when the merged
+#    tree is exactly what the PR built and the version still matches (else builds), publishes
+#    the release here with fixed names, and tags vX.Y.Z on chat-code;
+# 3. deploys the site (GitHub Pages, gh-pages branch) whenever main changed.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      rebuild_pr:
+        description: 'chat-code PR number to build again (even if it already has a result)'
+        required: false
+        default: ''
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write # releases and gh-pages here
+  actions: read # find artifacts of earlier runs
+
+env:
+  SOURCE_REPO: Perolanegra/chat-code
+  STATUS_CONTEXT: code-call/installers
+  SITE_URL: https://perolanegra.github.io/code-call/
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      prs: ${{ steps.prs.outputs.prs }}
+      has_prs: ${{ steps.prs.outputs.has_prs }}
+      main_sha: ${{ steps.main.outputs.sha }}
+      release: ${{ steps.release.outputs.release }}
+      version: ${{ steps.release.outputs.version }}
+      reuse_run: ${{ steps.release.outputs.reuse_run }}
+      artifact_prefix: ${{ steps.release.outputs.artifact_prefix }}
+      deploy_site: ${{ steps.site.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4 # for .github/scripts
+
+      - name: Latest release tag on chat-code
+        id: tags
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+        run: |
+          latest=$(gh api "repos/$SOURCE_REPO/tags" --paginate --jq '.[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          echo "latest=${latest:-v0.0.0}" >> "$GITHUB_OUTPUT"
+          echo "Latest tag: ${latest:-none}"
+
+      - name: Open PRs to build
+        id: prs
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          LATEST: ${{ steps.tags.outputs.latest }}
+          REBUILD: ${{ inputs.rebuild_pr }}
+        run: |
+          set -euo pipefail
+          list='[]'
+          while IFS=$'\t' read -r number sha title; do
+            [ -z "$number" ] && continue
+            seen=$(gh api "repos/$SOURCE_REPO/commits/$sha/status" \
+              --jq "[.statuses[] | select(.context == \"$STATUS_CONTEXT\")] | length")
+            if [ "$seen" != 0 ] && [ "$number" != "$REBUILD" ]; then continue; fi
+            version=$(.github/scripts/next-version.sh "$title" "$LATEST")
+            echo "PR #$number ($sha) → v$version"
+            list=$(jq -c --arg n "$number" --arg s "$sha" --arg v "$version" '. + [{number: $n, sha: $s, version: $v}]' <<<"$list")
+          done < <(gh api "repos/$SOURCE_REPO/pulls?state=open&base=main&per_page=50" \
+            --jq '.[] | select(.draft | not) | [.number, .head.sha, .title] | @tsv')
+          echo "prs=$list" >> "$GITHUB_OUTPUT"
+          echo "has_prs=$([ "$list" != '[]' ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: main
+        id: main
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+        run: echo "sha=$(gh api "repos/$SOURCE_REPO/commits/main" --jq .sha)" >> "$GITHUB_OUTPUT"
+
+      - name: Release needed?
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          LOCAL_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.main.outputs.sha }}
+          LATEST: ${{ steps.tags.outputs.latest }}
+        run: |
+          set -euo pipefail
+          tagged=$(gh api "repos/$SOURCE_REPO/tags" --paginate --jq ".[] | select(.commit.sha == \"$SHA\") | .name" | head -1)
+          if [ -n "$tagged" ]; then echo "main ($SHA) is already released as $tagged"; echo "release=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+
+          title=$(gh api "repos/$SOURCE_REPO/commits/$SHA/pulls" --jq '.[0].title // empty')
+          title="${title:-$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]')}"
+          version=$(.github/scripts/next-version.sh "$title" "$LATEST")
+          echo "Releasing $SHA ($title) as v$version"
+          { echo "release=true"; echo "version=$version"; } >> "$GITHUB_OUTPUT"
+
+          # Reuse the PR's installers when the merge is exactly what the PR built.
+          prefix="main-$SHA"; reuse=''
+          pr_head=$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.parents[1].sha // empty')
+          if [ -n "$pr_head" ]; then
+            tree_main=$(gh api "repos/$SOURCE_REPO/git/commits/$SHA" --jq .tree.sha)
+            tree_pr=$(gh api "repos/$SOURCE_REPO/git/commits/$pr_head" --jq .tree.sha)
+            if [ "$tree_main" = "$tree_pr" ]; then
+              run=$(GH_TOKEN=$LOCAL_TOKEN gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=pr-$pr_head-version-$version" \
+                --jq '[.artifacts[] | select(.expired | not)][0].workflow_run.id // empty')
+              if [ -n "$run" ]; then
+                names=$(GH_TOKEN=$LOCAL_TOKEN gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/artifacts" \
+                  --jq '[.artifacts[] | select(.expired | not) | .name] | join(" ")')
+                case " $names " in
+                  *" pr-$pr_head-windows "*) case " $names " in *" pr-$pr_head-macos "*) reuse=$run; prefix="pr-$pr_head" ;; esac ;;
+                esac
+              fi
+            fi
+          fi
+          if [ -n "$reuse" ]; then echo "Reusing the installers of run $reuse"; else echo "No reusable PR build: building."; fi
+          { echo "reuse_run=$reuse"; echo "artifact_prefix=$prefix"; } >> "$GITHUB_OUTPUT"
+
+      - name: Site deploy needed?
+        id: site
+        env:
+          SHA: ${{ steps.main.outputs.sha }}
+        run: |
+          deployed=$(curl -fsSL "${SITE_URL}status.json?t=$(date +%s)" | jq -r '.sourceSha // empty' || true)
+          echo "Deployed: ${deployed:-unknown}, main: $SHA"
+          echo "deploy=$([ "$deployed" != "$SHA" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  pr-build:
+    name: 'PR #${{ matrix.pr.number }}'
+    needs: plan
+    if: needs.plan.outputs.has_prs == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        pr: ${{ fromJSON(needs.plan.outputs.prs) }}
+    uses: ./.github/workflows/build.yml
+    with:
+      source_sha: ${{ matrix.pr.sha }}
+      version: ${{ matrix.pr.version }}
+      artifact_prefix: pr-${{ matrix.pr.sha }}
+      report_status: true
+    secrets: inherit
+
+  release-build:
+    name: release build
+    needs: plan
+    if: needs.plan.outputs.release == 'true' && needs.plan.outputs.reuse_run == ''
+    uses: ./.github/workflows/build.yml
+    with:
+      source_sha: ${{ needs.plan.outputs.main_sha }}
+      version: ${{ needs.plan.outputs.version }}
+      artifact_prefix: ${{ needs.plan.outputs.artifact_prefix }}
+    secrets: inherit
+
+  release:
+    name: release v${{ needs.plan.outputs.version }}
+    needs: [plan, release-build]
+    if: >-
+      always() && needs.plan.outputs.release == 'true' &&
+      (needs.release-build.result == 'success' || (needs.release-build.result == 'skipped' && needs.plan.outputs.reuse_run != ''))
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      PREFIX: ${{ needs.plan.outputs.artifact_prefix }}
+    steps:
+      - name: Installers from this run
+        if: needs.plan.outputs.reuse_run == ''
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ needs.plan.outputs.artifact_prefix }}-*
+          path: artifacts
+
+      - name: Installers from the PR build
+        if: needs.plan.outputs.reuse_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ needs.plan.outputs.artifact_prefix }}-*
+          path: artifacts
+          run-id: ${{ needs.plan.outputs.reuse_run }}
+          github-token: ${{ github.token }}
+
+      # Fixed names (what the landing links to) plus versioned copies.
+      - name: Name the installers
+        run: |
+          set -euo pipefail
+          mkdir release
+          exe=$(find artifacts -name '*-setup.exe' | head -1)
+          msi=$(find artifacts -name '*.msi' | head -1)
+          dmg=$(find artifacts -name '*.dmg' | head -1)
+          case "$exe" in *"_${VERSION}_"*) ;; *) echo "Installer $exe is not version $VERSION"; exit 1 ;; esac
+          cp "$exe" release/CodeCall-Windows-Setup.exe
+          cp "$msi" release/CodeCall-Windows.msi
+          cp "$dmg" release/CodeCall-macOS.dmg
+          cp "$exe" "release/CodeCall-${VERSION}-Windows-Setup.exe"
+          cp "$msi" "release/CodeCall-${VERSION}-Windows.msi"
+          cp "$dmg" "release/CodeCall-${VERSION}-macOS.dmg"
+          ls -la release
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'NOTES'
+          Unsigned builds for study purposes. Get the right one for your device at https://perolanegra.github.io/code-call/
+          - **Windows**: run `CodeCall-Windows-Setup.exe` (or the `.msi`); on the SmartScreen warning choose "More info" → "Run anyway".
+          - **macOS**: open `CodeCall-macOS.dmg`, drag the app to Applications, then right-click → Open (or run `xattr -dr com.apple.quarantine "/Applications/Chat Code.app"`).
+          - **iPhone / Android**: install the web app from the site (Add to Home Screen / Install app), no store needed.
+          NOTES
+          gh release create "v$VERSION" release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Code Call v$VERSION" \
+            --notes-file notes.md
+
+      # After the release, so a failed publish can simply run again with the same version.
+      - name: Tag v${{ needs.plan.outputs.version }} on chat-code
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          SHA: ${{ needs.plan.outputs.main_sha }}
+        run: gh api -X POST "repos/$SOURCE_REPO/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$SHA"
+
+  site:
+    needs: plan
+    if: needs.plan.outputs.deploy_site == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ needs.plan.outputs.main_sha }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx ng build --configuration pages
+
+      # status.json: which commit is live, and when SOURCE_TOKEN expires (GitHub sends it in
+      # the github-authentication-token-expiration header); the app shows a renewal notice
+      # near that date.
+      - name: Service status
+        env:
+          TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          SHA: ${{ needs.plan.outputs.main_sha }}
+        run: |
+          set -euo pipefail
+          expires=$(curl -sSI -H "Authorization: Bearer $TOKEN" "https://api.github.com/repos/$SOURCE_REPO" \
+            | tr -d '\r' | awk -F': ' 'tolower($1)=="github-authentication-token-expiration" {print $2}')
+          iso=null
+          if [ -n "$expires" ]; then iso="\"$(date -u -d "$expires" +%Y-%m-%dT%H:%M:%SZ)\""; fi
+          echo "{\"tokenExpiresAt\": $iso, \"sourceSha\": \"$SHA\"}" > dist/chat-code/browser/status.json
+          cat dist/chat-code/browser/status.json
+
+      # GitHub Pages has no SPA rewrites: deep links fall back to 404.html (the app itself).
+      - name: Prepare Pages output
+        run: |
+          cp dist/chat-code/browser/index.html dist/chat-code/browser/404.html
+          touch dist/chat-code/browser/.nojekyll
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ github.token }}
+          publish_branch: gh-pages
+          publish_dir: dist/chat-code/browser
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_message: 'deploy: Perolanegra/chat-code@${{ needs.plan.outputs.main_sha }}'

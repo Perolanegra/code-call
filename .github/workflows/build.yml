@@ -1,0 +1,123 @@
+name: Build installers
+
+# Reusable: builds the Windows and macOS installers of one chat-code commit (the source repo
+# is private; it is checked out with SOURCE_TOKEN only for the build). Optionally reports the
+# result as a commit status on that commit, so it shows as a check on the chat-code PR.
+on:
+  workflow_call:
+    inputs:
+      source_sha:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+      artifact_prefix:
+        type: string
+        required: true
+      report_status:
+        type: boolean
+        default: false
+
+env:
+  SOURCE_REPO: Perolanegra/chat-code
+  STATUS_CONTEXT: code-call/installers
+
+jobs:
+  pending:
+    if: inputs.report_status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark the chat-code commit as building
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+        run: |
+          gh api -X POST "repos/$SOURCE_REPO/statuses/${{ inputs.source_sha }}" \
+            -f state=pending -f context="$STATUS_CONTEXT" \
+            -f description="Building installers v${{ inputs.version }}" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+  installers:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows
+            os: windows-latest
+            args: ''
+            rust-targets: ''
+          - name: macos
+            os: macos-latest
+            # One .dmg for both Apple Silicon and Intel Macs.
+            args: '--target universal-apple-darwin'
+            rust-targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.source_sha }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - run: npm ci
+
+      # The installers carry the version they will be released as (tauri reads package.json).
+      - run: npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
+
+      # Runs `npm run build` (beforeBuildCommand) and bundles the installers. Unsigned on
+      # purpose (study project): SmartScreen / Gatekeeper warn on first launch.
+      - uses: tauri-apps/tauri-action@v0
+        with:
+          args: ${{ matrix.args }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-${{ matrix.name }}
+          path: |
+            src-tauri/target/**/release/bundle/msi/*.msi
+            src-tauri/target/**/release/bundle/nsis/*.exe
+            src-tauri/target/**/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+  # Which version these installers were built as (checked before a release reuses them).
+  version-marker:
+    needs: installers
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ inputs.version }}" > version.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-version-${{ inputs.version }}
+          path: version.txt
+          retention-days: 14
+
+  report:
+    needs: [installers, version-marker]
+    if: always() && inputs.report_status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report the result on the chat-code commit
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          RESULT: ${{ needs.installers.result == 'success' && needs.version-marker.result == 'success' && 'success' || 'failure' }}
+        run: |
+          gh api -X POST "repos/$SOURCE_REPO/statuses/${{ inputs.source_sha }}" \
+            -f state="$RESULT" -f context="$STATUS_CONTEXT" \
+            -f description="Installers v${{ inputs.version }}: $RESULT" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
