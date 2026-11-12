@@ -131,15 +131,6 @@ jobs:
           if [ -n "$reuse" ]; then echo "Reusing the installers of run $reuse"; else echo "No reusable PR build: building."; fi
           { echo "reuse_run=$reuse"; echo "artifact_prefix=$prefix"; } >> "$GITHUB_OUTPUT"
 
-      - name: Site deploy needed?
-        id: site
-        env:
-          SHA: ${{ steps.main.outputs.sha }}
-        run: |
-          deployed=$(curl -fsSL "${SITE_URL}status.json?t=$(date +%s)" | jq -r '.sourceSha // empty' || true)
-          echo "Deployed: ${deployed:-unknown}, main: $SHA"
-          echo "deploy=$([ "$deployed" != "$SHA" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-
       # Fingerprint = git blob ids of the Firestore config at main; deploy only when it differs
       # from the one recorded in the live status.json.
       - name: Firestore deploy needed?
@@ -156,6 +147,18 @@ jobs:
           echo "Firestore config: $fingerprint (live: ${deployed:-unknown})"
           echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
           echo "deploy=$([ "$deployed" != "$fingerprint" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # The site goes out when main changed, and also after a Firestore deploy, so its
+      # status.json records the new fingerprint (otherwise every run would redeploy rules).
+      - name: Site deploy needed?
+        id: site
+        env:
+          SHA: ${{ steps.main.outputs.sha }}
+          FIRESTORE_DEPLOY: ${{ steps.firestore.outputs.deploy }}
+        run: |
+          deployed=$(curl -fsSL "${SITE_URL}status.json?t=$(date +%s)" | jq -r '.sourceSha // empty' || true)
+          echo "Deployed: ${deployed:-unknown}, main: $SHA, firestore deploy: $FIRESTORE_DEPLOY"
+          echo "deploy=$([ "$deployed" != "$SHA" ] || [ "$FIRESTORE_DEPLOY" = true ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   pr-build:
     name: 'PR #${{ matrix.pr.number }}'
