@@ -28,3 +28,4 @@ The app's source code lives in a private repository. This public repo holds what
   - `build.yml` is the reusable Windows and macOS build.
 
   The source is checked out only inside the build jobs, with the `SOURCE_TOKEN` secret.
+  - When `firebase.json`, `firestore.rules` or `firestore.indexes.json` change on `main`, the pipeline also deploys the Firestore rules and indexes. That happens before the site, and only when they changed: `status.json` records the deployed fingerprint. It uses the `FIREBASE_SERVICE_ACCOUNT` secret: a service account key with only *Firebase Rules Admin*, *Cloud Datastore Index Admin* and *Service Usage Consumer*.
