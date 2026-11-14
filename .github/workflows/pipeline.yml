@@ -104,23 +104,26 @@ jobs:
           tagged=$(gh api "repos/$SOURCE_REPO/tags" --paginate --jq ".[] | select(.commit.sha == \"$SHA\") | .name" | head -1)
           if [ -n "$tagged" ]; then echo "main ($SHA) is already released as $tagged"; echo "release=false" >> "$GITHUB_OUTPUT"; exit 0; fi
 
-          # Right after a merge GitHub may not have linked the commit to its PR yet: then read
-          # the PR number from "Merge pull request #N …" and use that PR's title.
-          title=$(gh api "repos/$SOURCE_REPO/commits/$SHA/pulls" --jq '.[0].title // empty')
-          if [ -z "$title" ]; then
-            subject=$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]')
-            if [[ "$subject" =~ ^Merge\ pull\ request\ \#([0-9]+) ]]; then
-              title=$(gh api "repos/$SOURCE_REPO/pulls/${BASH_REMATCH[1]}" --jq '.title')
-            fi
-            title="${title:-$subject}"
+          # The merged PR: PRs are rebase-merged, so main's head is the PR's last commit, which
+          # GitHub records as the PR's merge_commit_sha (also matched right after the merge,
+          # before the commit is linked to its PR). Older merge commits: "Merge pull request #N".
+          pr=$(gh api "repos/$SOURCE_REPO/pulls?state=closed&sort=updated&direction=desc&per_page=30" \
+            --jq "[.[] | select(.merge_commit_sha == \"$SHA\")][0] // empty | {number, title, head: .head.sha}")
+          subject=$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.commit.message | split("\n")[0]')
+          if [ -z "$pr" ] && [[ "$subject" =~ ^Merge\ pull\ request\ \#([0-9]+) ]]; then
+            pr=$(gh api "repos/$SOURCE_REPO/pulls/${BASH_REMATCH[1]}" --jq '{number, title, head: .head.sha}')
           fi
+          pr=${pr:-'{}'}
+          title=$(jq -r '.title // empty' <<<"$pr")
+          title=${title:-$subject}
           version=$(.github/scripts/next-version.sh "$title" "$LATEST")
           echo "Releasing $SHA ($title) as v$version"
           { echo "release=true"; echo "version=$version"; } >> "$GITHUB_OUTPUT"
 
-          # Reuse the PR's installers when the merge is exactly what the PR built.
+          # Reuse the PR's installers when main is exactly what the PR built.
           prefix="main-$SHA"; reuse=''
-          pr_head=$(gh api "repos/$SOURCE_REPO/commits/$SHA" --jq '.parents[1].sha // empty')
+          # The PR's own head: its build is reusable when main ended up with the very same tree.
+          pr_head=$(jq -r '.head // empty' <<<"$pr")
           if [ -n "$pr_head" ]; then
             tree_main=$(gh api "repos/$SOURCE_REPO/git/commits/$SHA" --jq .tree.sha)
             tree_pr=$(gh api "repos/$SOURCE_REPO/git/commits/$pr_head" --jq .tree.sha)
