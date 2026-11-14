@@ -1,0 +1,22 @@
+{
+  "categories": [
+    { "id": "gaming", "name": "Gaming", "dot": "gaming" },
+    { "id": "education", "name": "Education", "dot": "education" },
+    { "id": "music", "name": "Music", "dot": "music" },
+    { "id": "technology", "name": "Technology", "dot": "tech" },
+    { "id": "lifestyle", "name": "Lifestyle" }
+  ],
+  "servers": [
+    { "id": "s1", "name": "Dream Island", "description": "A cozy community for hanging out, sharing games, and chatting late into the night.", "onlineCount": 3241, "memberCount": 12987, "category": "Gaming", "isVerified": true },
+    { "id": "s2", "name": "TypeScript Tavern", "description": "Ask questions, share tips, and learn modern TypeScript and Angular techniques.", "onlineCount": 812, "memberCount": 5690, "category": "Technology", "isPartner": true },
+    { "id": "s3", "name": "Lo-Fi Coding Radio", "description": "Music and focus sessions for developers, students, and anyone who loves lo-fi beats.", "onlineCount": 1460, "memberCount": 22134, "category": "Music", "isVerified": true },
+    { "id": "s4", "name": "Study Hall", "description": "Pomodoro rooms, accountability partners, and resources for learners of all ages.", "onlineCount": 590, "memberCount": 8743, "category": "Education" },
+    { "id": "s5", "name": "Pixel Art Collective", "description": "Share your pixel art, get feedback, and participate in weekly challenges.", "onlineCount": 210, "memberCount": 3942, "category": "Lifestyle" }
+  ],
+  "questCategories": ["Social", "Community", "Gameplay"],
+  "quests": [
+    { "id": "dq1", "category": "Social", "title": "Welcome Wagon", "description": "Join a new community, say hello in chat, and react to at least three different messages.", "reward": "200 XP • Avatar Frame", "badge": "new", "available": true },
+    { "id": "dq2", "category": "Community", "title": "Event Explorer", "description": "Find a server event and RSVP, then share a screenshot or clip in chat once it begins.", "reward": "150 XP • Quest Token", "available": true },
+    { "id": "dq3", "category": "Gameplay", "title": "Co-op Challenger", "description": "Team up with at least one friend in a supported game and complete a cooperative objective.", "reward": "300 XP • Title Badge", "badge": "upcoming", "available": false }
+  ]
+}

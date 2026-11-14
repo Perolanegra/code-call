@@ -1,0 +1,9 @@
+{
+  "categories": ["Featured", "Avatars", "Themes", "Boosts", "Bundles"],
+  "items": [
+    { "id": "theme-pack", "name": "Profile Theme Pack", "description": "A set of colorful profile themes to customize your appearance.", "category": "Themes", "price": "$9.99", "emoji": "🎨", "art": "primary", "available": true },
+    { "id": "emoji-bundle", "name": "Emoji Mega Bundle", "description": "Unlock a bundle of expressive emoji for your servers and DMs.", "category": "Bundles", "price": "$4.99", "emoji": "😺", "art": "accent", "available": true },
+    { "id": "boost-pack", "name": "Server Boost Pack", "description": "Temporary boosts for your favorite community.", "category": "Boosts", "price": "$14.99", "emoji": "⚡", "art": "boost", "available": true },
+    { "id": "avatar-frames", "name": "Avatar Frames", "description": "Animated frames that make your avatar pop in every chat.", "category": "Avatars", "price": "TBD", "emoji": "✨", "available": false }
+  ]
+}

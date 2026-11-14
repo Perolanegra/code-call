@@ -1,0 +1,6 @@
+[
+  { "id": "q1", "title": "Say hi to 3 new friends", "description": "Send a friendly message to three different users in your server or direct messages.", "progress": 40, "reward": "150 XP • 50 Coins", "status": "active" },
+  { "id": "q2", "title": "Join a voice channel", "description": "Hop into any voice channel and stay connected for at least 10 minutes.", "progress": 10, "reward": "100 XP", "status": "active" },
+  { "id": "q3", "title": "Complete your profile", "description": "Add an avatar, set a custom status, and update your profile banner.", "progress": 100, "reward": "Profile Badge", "status": "completed" },
+  { "id": "q4", "title": "Discover a new community", "description": "Use the server discovery section to find and join a new server that interests you.", "progress": 0, "reward": "200 XP • Mystery Item", "status": "upcoming" }
+]

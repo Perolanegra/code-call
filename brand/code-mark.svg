@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="62 22 132 212" role="img" aria-labelledby="t">
+  <title id="t">Code Call</title>
+  <!-- body -->
+  <rect x="70" y="30" width="116" height="196" rx="30" fill="#5865f2"/>
+  <rect x="70" y="30" width="116" height="196" rx="30" fill="none" stroke="#4752c4" stroke-width="6"/>
+  <!-- speaker + camera -->
+  <rect x="112" y="44" width="32" height="7" rx="3.5" fill="#1e1f22" opacity=".55"/>
+  <!-- screen / face -->
+  <rect x="84" y="62" width="88" height="128" rx="18" fill="#1e1f22"/>
+  <!-- eyes -->
+  <ellipse cx="111" cy="112" rx="10" ry="13" fill="#ffffff"/>
+  <ellipse cx="145" cy="112" rx="10" ry="13" fill="#ffffff"/>
+  <circle cx="114" cy="108" r="3.5" fill="#1e1f22"/>
+  <circle cx="148" cy="108" r="3.5" fill="#1e1f22"/>
+  <!-- cheeks -->
+  <ellipse cx="100" cy="136" rx="8" ry="5" fill="#eb459e" opacity=".75"/>
+  <ellipse cx="156" cy="136" rx="8" ry="5" fill="#eb459e" opacity=".75"/>
+  <!-- smile -->
+  <path d="M114 140 q14 14 28 0" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <!-- code brackets on the home bar -->
+  <path d="M116 204 l-8 7 l8 7 M140 204 l8 7 l-8 7" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M131 202 l-6 18" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+</svg>
