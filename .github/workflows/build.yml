@@ -53,6 +53,10 @@ jobs:
             args: '--target universal-apple-darwin'
             rust-targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
     runs-on: ${{ matrix.os }}
+    env:
+      # chat-code's .npmrc reads the GitHub Packages token for @perolanegra/* from this variable
+      # (packages: read comes from the caller, pipeline.yml).
+      NODE_AUTH_TOKEN_SPRITE: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,6 +69,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@perolanegra'
 
       - uses: dtolnay/rust-toolchain@stable
         with:
