@@ -31,6 +31,7 @@ concurrency:
 permissions:
   contents: write # releases and gh-pages here
   actions: read # find artifacts of earlier runs
+  packages: read # chat-code's @perolanegra/* npm packages (GitHub Packages); build.yml inherits it
 
 env:
   SOURCE_REPO: Perolanegra/chat-code
@@ -331,6 +332,9 @@ jobs:
 
   site:
     needs: [plan, firestore]
+    env:
+      # chat-code's .npmrc reads the GitHub Packages token for @perolanegra/* from this variable.
+      NODE_AUTH_TOKEN_SPRITE: ${{ secrets.GITHUB_TOKEN }}
     # After the Firestore deploy when there was one; never if it failed.
     if: >-
       always() && needs.plan.outputs.deploy_site == 'true' &&
@@ -348,6 +352,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@perolanegra'
 
       - run: npm ci
 
