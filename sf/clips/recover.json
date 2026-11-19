@@ -1,0 +1,16 @@
+{
+  "id": "recover",
+  "frames": 30,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 22 }, { "f": 16, "rot": -6, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "head":            [{ "f": 0, "rot": 24 }, { "f": 16, "rot": -8, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 52 }, { "f": 16, "rot": -10, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 70 }, { "f": 16, "rot": -6, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": -40 }, { "f": 16, "rot": 6, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "thigh_front":     [{ "f": 0, "rot": -72 }, { "f": 18, "rot": 8, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "thigh_back":      [{ "f": 0, "rot": -60 }, { "f": 18, "rot": 6, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "shin_front":      [{ "f": 0, "rot": 92 }, { "f": 18, "rot": -6, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }],
+    "shin_back":       [{ "f": 0, "rot": 84 }, { "f": 18, "rot": -4, "ease": "cubicOut" }, { "f": 30, "rot": 0, "ease": "sineInOut" }]
+  },
+  "slots": { "head": [{ "f": 0, "slot": "head_shout" }, { "f": 12, "slot": "default" }] }
+}

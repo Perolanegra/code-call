@@ -1,0 +1,16 @@
+{
+  "id": "brake",
+  "frames": 36,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -34, "ease": "cubicOut" }, { "f": 18, "rot": -24, "ease": "sineInOut" }, { "f": 36, "rot": -27, "ease": "sineInOut" }],
+    "head":            [{ "f": 0, "rot": 0 }, { "f": 8, "rot": 16, "ease": "cubicOut" }, { "f": 20, "rot": 8, "ease": "backOut" }, { "f": 36, "rot": 10, "ease": "sineInOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -12, "ease": "cubicOut" }, { "f": 20, "rot": 4, "ease": "backOut" }, { "f": 36, "rot": 0, "ease": "sineInOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -14, "ease": "cubicOut" }, { "f": 20, "rot": 8, "ease": "backOut" }, { "f": 36, "rot": 4, "ease": "sineInOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -50, "ease": "cubicOut" }, { "f": 20, "rot": -36, "ease": "backOut" }, { "f": 36, "rot": -40, "ease": "sineInOut" }],
+    "arm_back_fore":   [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -40, "ease": "cubicOut" }, { "f": 20, "rot": -24, "ease": "backOut" }, { "f": 36, "rot": -28, "ease": "sineInOut" }],
+    "thigh_front":     [{ "f": 0, "rot": 0 }, { "f": 8, "rot": -100, "ease": "cubicOut" }, { "f": 20, "rot": -84, "ease": "backOut" }, { "f": 36, "rot": -88, "ease": "sineInOut" }],
+    "thigh_back":      [{ "f": 0, "rot": 0 }, { "f": 10, "rot": -74, "ease": "cubicOut" }, { "f": 22, "rot": -60, "ease": "backOut" }, { "f": 36, "rot": -64, "ease": "sineInOut" }],
+    "shin_front":      [{ "f": 0, "rot": 0 }, { "f": 8, "rot": 70, "ease": "cubicOut" }, { "f": 20, "rot": 52, "ease": "backOut" }, { "f": 36, "rot": 56, "ease": "sineInOut" }],
+    "shin_back":       [{ "f": 0, "rot": 0 }, { "f": 10, "rot": 58, "ease": "cubicOut" }, { "f": 22, "rot": 42, "ease": "backOut" }, { "f": 36, "rot": 46, "ease": "sineInOut" }]
+  }
+}

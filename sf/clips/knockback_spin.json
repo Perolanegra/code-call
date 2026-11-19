@@ -1,0 +1,17 @@
+{
+  "id": "knockback_spin",
+  "frames": 48,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 22, "ease": "cubicOut" }],
+    "head":            [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 24, "ease": "cubicOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 52, "ease": "cubicOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 70, "ease": "cubicOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": 0 }, { "f": 6, "rot": -40, "ease": "cubicOut" }],
+    "thigh_front":     [{ "f": 0, "rot": 0 }, { "f": 6, "rot": -72, "ease": "cubicOut" }],
+    "thigh_back":      [{ "f": 0, "rot": 0 }, { "f": 6, "rot": -60, "ease": "cubicOut" }],
+    "shin_front":      [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 92, "ease": "cubicOut" }],
+    "shin_back":       [{ "f": 0, "rot": 0 }, { "f": 6, "rot": 84, "ease": "cubicOut" }]
+  },
+  "slots": { "head": [{ "f": 0, "slot": "head_shout" }] },
+  "root": [{ "f": 0, "rot": 0 }, { "f": 48, "rot": -720, "ease": "cubicOut" }]
+}

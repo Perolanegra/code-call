@@ -1,0 +1,32 @@
+{
+  "trialBadge": "2 WEEKS FREE",
+  "plans": [
+    {
+      "id": "nitro",
+      "name": "Nitro",
+      "price": "$9.99 / month",
+      "badge": "Most popular",
+      "primary": true,
+      "description": "Unlock higher upload limits, HD streaming, and more ways to support your favorite servers.",
+      "features": ["HD video and screen sharing", "Server boosts and perks", "Custom emoji anywhere", "Profile customization"],
+      "cta": "Subscribe"
+    },
+    {
+      "id": "nitro-basic",
+      "name": "Nitro Basic",
+      "price": "$2.99 / month",
+      "description": "A lighter plan for enhanced messaging with stickers and bigger uploads.",
+      "features": ["Increased upload size", "Custom emoji anywhere", "Fun stickers and reactions"],
+      "cta": "Try Basic"
+    }
+  ],
+  "highlight": {
+    "title": "Make your chat shine",
+    "text": "Nitro is all about expression and support. Use animated emojis, custom profiles, and boosted servers to personalize your experience.",
+    "points": [
+      "Stand out with animated avatars and banners",
+      "Show off your favorite communities with boosts",
+      "Enjoy smoother streams and bigger file uploads"
+    ]
+  }
+}

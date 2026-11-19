@@ -1,0 +1,13 @@
+{
+  "title": "neo voa e soca",
+  "seed": 1,
+  "tail": 0.8,
+  "cast": { "neo": { "at": [0, 600], "scale": 0.45, "clip": "idle_fly" } },
+  "camera": { "mode": "auto", "maxZoom": 0.7, "margin": 140 },
+  "steps": [
+    { "id": "voa", "at": 0.3, "actor": "neo", "do": "moveTo", "params": { "to": [520, 560], "duration": 1.2, "ease": "sineInOut" } },
+    { "id": "soco", "after": "voa", "actor": "neo", "do": "pose", "params": { "name": "punch" } },
+    { "after": "voa", "actor": "neo", "do": "say", "params": { "text": "Code Call!", "seconds": 1.2 } },
+    { "after": "soco", "delay": 0.7, "actor": "neo", "do": "pose", "params": { "name": "fly" } }
+  ]
+}

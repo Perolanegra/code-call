@@ -1,0 +1,71 @@
+[
+  {
+    "id": "shoot",
+    "poses": ["shoot"],
+    "phases": [
+      { "name": "sacar", "frames": 6, "pose": "shoot", "aim": 0.6 },
+      { "name": "tiro", "frames": 2, "aim": 0.6, "fx": ["muzzle"],
+        "spawn": { "projectile": "bullet", "from": "hand_front", "speed": 2600, "radius": 9, "life": 60 } },
+      { "name": "segurar", "frames": 14, "aim": 0.6 },
+      { "name": "voltar", "frames": 10, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 4, "knockback": [240, -40], "drag": 8, "stun": 16, "targetPose": "hurt", "targetClip": "hurt_light", "fx": ["impact_small"] }
+  },
+  {
+    "id": "jab",
+    "poses": ["punch"],
+    "phases": [
+      { "name": "preparo", "frames": 4, "pose": "punch", "motion": { "type": "dash", "velocity": [1100, 0], "drag": 9 } },
+      { "name": "ativo", "frames": 5, "hitboxes": [{ "bone": "hand_front", "radius": 34, "along": [0.2, 1] }] },
+      { "name": "recuperar", "frames": 8 },
+      { "name": "voltar", "frames": 8, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 6, "knockback": [560, 0], "drag": 8, "stun": 20, "targetPose": "hurt", "targetClip": "hurt_light", "fx": ["impact_small"] }
+  },
+  {
+    "id": "jab2",
+    "poses": ["punch_alt"],
+    "phases": [
+      { "name": "preparo", "frames": 4, "pose": "punch_alt", "motion": { "type": "dash", "velocity": [950, 0], "drag": 9 } },
+      { "name": "ativo", "frames": 5, "hitboxes": [{ "bone": "hand_front", "radius": 34, "along": [0.2, 1] }] },
+      { "name": "recuperar", "frames": 8 },
+      { "name": "voltar", "frames": 8, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 7, "knockback": [600, -20], "drag": 8, "stun": 22, "targetPose": "hurt", "targetClip": "hurt_light", "fx": ["impact_small"] }
+  },
+  {
+    "id": "heavy_punch",
+    "poses": ["punch"],
+    "phases": [
+      { "name": "carregar", "frames": 7, "pose": "punch", "motion": { "type": "dash", "velocity": [1000, 0], "drag": 10 },
+        "fx": [{ "type": "afterimage", "frames": 8, "every": 2 }] },
+      { "name": "ativo", "frames": 6, "hitboxes": [{ "bone": "hand_front", "radius": 46, "along": [0.1, 1] }] },
+      { "name": "recuperar", "frames": 16 },
+      { "name": "voltar", "frames": 10, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 12, "knockback": [1800, -320], "drag": 2.2, "stun": 60, "targetPose": "hurt", "targetClip": "knockback_spin", "fx": ["impact_big", "flash"], "camera": { "shake": 0.5 } }
+  },
+  {
+    "id": "kick",
+    "poses": ["kick"],
+    "phases": [
+      { "name": "preparo", "frames": 5, "pose": "kick" },
+      { "name": "ativo", "frames": 6, "hitboxes": [{ "bone": "foot_front", "radius": 40 }, { "bone": "shin_front", "radius": 30 }] },
+      { "name": "recuperar", "frames": 12 },
+      { "name": "voltar", "frames": 10, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 8, "knockback": [700, -120], "drag": 5, "stun": 30, "targetPose": "hurt", "targetClip": "hurt_heavy", "fx": ["impact_big"] }
+  },
+  {
+    "id": "dash_strike",
+    "poses": ["dash", "punch"],
+    "phases": [
+      { "name": "arrancar", "frames": 10, "pose": "dash", "motion": { "type": "dash", "velocity": [1700, 0], "drag": 6 },
+        "fx": [{ "type": "afterimage", "frames": 14, "every": 2, "tint": "#8fd0ff" }, { "type": "speedlines", "frames": 16, "intensity": 0.8 }] },
+      { "name": "golpe", "frames": 6, "pose": "punch", "hitboxes": [{ "bone": "hand_front", "radius": 42, "along": [0.1, 1] }] },
+      { "name": "recuperar", "frames": 14 },
+      { "name": "voltar", "frames": 10, "pose": "fly" }
+    ],
+    "onHit": { "hitstop": 10, "knockback": [1200, -200], "drag": 3, "stun": 40, "targetPose": "hurt", "targetClip": "hurt_heavy", "fx": ["impact_big"] }
+  }
+]

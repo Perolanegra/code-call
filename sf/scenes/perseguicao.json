@@ -1,0 +1,43 @@
+{
+  "title": "perseguicao",
+  "seed": 7,
+  "tail": 0.4,
+  "cast": {
+    "neo": { "at": [300, 560], "scale": 0.3 },
+    "smith": { "at": [-200, 560], "scale": 0.3, "collideProps": true }
+  },
+  "camera": { "mode": "auto", "maxZoom": 0.8, "margin": 160 },
+  "steps": [
+    { "id": "fuga", "at": 0, "actor": "neo", "do": "moveTo", "params": { "route": "M 300 560 C 650 530, 1000 770, 1300 750", "duration": 1.75, "ease": "sineOut" } },
+    { "id": "caca", "at": 0, "actor": "smith", "do": "moveTo", "params": { "to": [1060, 640], "duration": 2.0 } },
+
+    { "id": "olha", "at": 0.15, "actor": "neo", "do": "pose", "params": { "name": "look_back" } },
+    { "after": "olha", "delay": 0.45, "actor": "neo", "do": "pose", "params": { "name": "fly" } },
+
+    { "id": "tiro1", "at": 0.35, "actor": "smith", "do": "move", "params": { "id": "shoot", "target": "neo" } },
+    { "id": "tiro2", "after": "tiro1", "actor": "smith", "do": "move", "params": { "id": "shoot", "target": "neo" } },
+    { "on": "incoming:smith->neo", "nth": 1, "actor": "neo", "do": "move", "params": { "id": "dodge" } },
+    { "on": "incoming:smith->neo", "nth": 2, "actor": "neo", "do": "move", "params": { "id": "dodge_low" } },
+
+    { "id": "porta", "at": 0.85, "do": "spawnProp", "params": { "type": "door", "id": "porta", "at": [1400, 520], "size": [90, 300], "state": "closed", "appear": 0.25 } },
+    { "id": "abre", "after": "porta", "do": "prop", "params": { "id": "porta", "action": "open", "duration": 0.2 } },
+
+    { "id": "mergulho", "after": "fuga", "actor": "neo", "do": "pose", "params": { "name": "enter" } },
+    { "id": "entra", "after": "fuga", "actor": "neo", "do": "enter", "params": { "prop": "porta", "duration": 0.35, "ease": "quadIn" } },
+    { "id": "bate", "after": "entra", "do": "prop", "params": { "id": "porta", "action": "close", "duration": 0.12 } },
+
+    { "id": "investida", "after": "bate", "actor": "smith", "do": "moveTo", "params": { "to": [1500, 640], "duration": 0.3, "ease": "quadIn" } },
+
+    { "on": "hit:porta->smith", "actor": "smith", "do": "parallel", "params": { "steps": [
+      { "do": "pose", "params": { "name": "splat", "transition": "cut" } },
+      { "do": "touch", "params": { "prop": "porta", "gap": 0 } },
+      { "do": "play", "params": { "clip": "splat" } },
+      { "do": "fx", "params": { "type": "impact_big" } },
+      { "do": "camera", "params": { "shake": 0.5 } }
+    ] } },
+    { "id": "recua", "on": "hit:porta->smith", "delay": 0.35, "actor": "smith", "do": "moveTo", "params": { "to": [-70, -20], "relative": true, "duration": 0.25, "ease": "quadOut" } },
+    { "id": "tonto", "after": "recua", "actor": "smith", "do": "pose", "params": { "name": "fall" } },
+    { "after": "recua", "actor": "smith", "do": "play", "params": { "clip": "fall" } },
+    { "after": "recua", "actor": "smith", "do": "moveTo", "params": { "to": [-40, 260], "relative": true, "duration": 0.6, "ease": "quadIn" } }
+  ]
+}

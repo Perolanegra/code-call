@@ -1,0 +1,1 @@
+import{V as a,ra as o}from"./chunk-DJHGFVJ5.js";var s=class t{target=o(null);focus(r,e){this.target.set({roomId:r,messageId:e})}clear(){this.target.set(null)}static \u0275fac=function(e){return new(e||t)};static \u0275prov=a({token:t,factory:t.\u0275fac,providedIn:"root"})};export{s as a};

@@ -1,0 +1,17 @@
+{
+  "id": "idle_fly",
+  "loop": true,
+  "pose": "fly_rest",
+  "frames": 96,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 0 }, { "f": 48, "rot": 2.5, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "head":            [{ "f": 0, "rot": 0 }, { "f": 56, "rot": -3, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 0 }, { "f": 44, "rot": -5, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 0 }, { "f": 52, "rot": 4, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": 0 }, { "f": 40, "rot": 4, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "thigh_front":     [{ "f": 0, "rot": 0 }, { "f": 36, "rot": 5, "ease": "sineInOut" }, { "f": 96, "rot": 0, "ease": "sineInOut" }],
+    "thigh_back":      [{ "f": 0, "rot": 2 }, { "f": 60, "rot": -3, "ease": "sineInOut" }, { "f": 96, "rot": 2, "ease": "sineInOut" }],
+    "shin_front":      [{ "f": 0, "rot": 2 }, { "f": 44, "rot": 9, "ease": "sineInOut" }, { "f": 96, "rot": 2, "ease": "sineInOut" }],
+    "shin_back":       [{ "f": 0, "rot": 6 }, { "f": 66, "rot": 0, "ease": "sineInOut" }, { "f": 96, "rot": 6, "ease": "sineInOut" }]
+  }
+}

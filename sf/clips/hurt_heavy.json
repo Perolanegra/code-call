@@ -1,0 +1,17 @@
+{
+  "id": "hurt_heavy",
+  "frames": 40,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 0 }, { "f": 3, "rot": -36, "ease": "expoOut" }, { "f": 26, "rot": -10, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "head":            [{ "f": 0, "rot": 0 }, { "f": 3, "rot": -42, "ease": "expoOut" }, { "f": 26, "rot": -12, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 0 }, { "f": 4, "rot": -78, "ease": "expoOut" }, { "f": 26, "rot": -30, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 46, "ease": "expoOut" }, { "f": 26, "rot": 16, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 58, "ease": "expoOut" }, { "f": 26, "rot": 20, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "thigh_front":     [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 30, "ease": "expoOut" }, { "f": 26, "rot": 8, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "thigh_back":      [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 22, "ease": "expoOut" }, { "f": 26, "rot": 6, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "shin_front":      [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 44, "ease": "expoOut" }, { "f": 26, "rot": 14, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }],
+    "shin_back":       [{ "f": 0, "rot": 0 }, { "f": 4, "rot": 36, "ease": "expoOut" }, { "f": 26, "rot": 10, "ease": "sineInOut" }, { "f": 40, "rot": 0, "ease": "backOut" }]
+  },
+  "slots": { "head": [{ "f": 0, "slot": "head_shout" }, { "f": 32, "slot": "default" }] },
+  "root": [{ "f": 0, "x": 0, "rot": 0 }, { "f": 3, "x": -22, "rot": -14, "ease": "expoOut" }, { "f": 40, "x": 0, "rot": 0, "ease": "backOut" }]
+}

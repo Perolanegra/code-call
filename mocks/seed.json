@@ -1,0 +1,59 @@
+{
+  "credentials": [
+    { "id": "mockalice00000000000000000001", "email": "alice@chatcode.dev", "password": "123456" },
+    { "id": "mockbob0000000000000000000002", "email": "bob@chatcode.dev", "password": "123456" },
+    { "id": "mockcarol000000000000000000003", "email": "carol@chatcode.dev", "password": "123456" }
+  ],
+  "users": [
+    { "id": "mockalice00000000000000000001", "createdAt": 1735689600000, "name": "Alice", "name_lc": "alice", "username": "alice", "username_lc": "alice", "email": "alice@chatcode.dev" },
+    { "id": "mockbob0000000000000000000002", "createdAt": 1738368000000, "name": "Bob", "name_lc": "bob", "username": "bob", "username_lc": "bob", "email": "bob@chatcode.dev" },
+    { "id": "mockcarol000000000000000000003", "createdAt": 1746057600000, "name": "Carol", "name_lc": "carol", "username": "carol", "username_lc": "carol", "email": "carol@chatcode.dev" }
+  ],
+  "friendRequests": [
+    {
+      "id": "mockalice00000000000000000001_mockbob0000000000000000000002",
+      "from": "mockalice00000000000000000001",
+      "to": "mockbob0000000000000000000002",
+      "users": ["mockalice00000000000000000001", "mockbob0000000000000000000002"],
+      "status": "accepted",
+      "createdAt": 1767225600000,
+      "updatedAt": 1767225600000
+    },
+    {
+      "id": "mockalice00000000000000000001_mockcarol000000000000000000003",
+      "from": "mockcarol000000000000000000003",
+      "to": "mockalice00000000000000000001",
+      "users": ["mockalice00000000000000000001", "mockcarol000000000000000000003"],
+      "status": "pending",
+      "createdAt": 1767312000000,
+      "updatedAt": 1767312000000
+    }
+  ],
+  "rooms": [
+    {
+      "id": "dm_mockalice00000000000000000001_mockbob0000000000000000000002",
+      "type": "dm",
+      "members": ["mockalice00000000000000000001", "mockbob0000000000000000000002"],
+      "lastMessageAt": 1767229200000,
+      "lastMessagePreview": "Bora testar a chamada de vídeo?",
+      "createdAt": 1767225600000
+    },
+    { "id": "mockroom-general", "type": "text", "name": "general", "serverId": "mockserver-hq", "members": [], "createdAt": 1767225600000 },
+    { "id": "mockroom-voice", "type": "voice", "name": "General", "serverId": "mockserver-hq", "members": [], "createdAt": 1767225600001 }
+  ],
+  "messages": [
+    { "id": "mockmsg-1", "roomId": "dm_mockalice00000000000000000001_mockbob0000000000000000000002", "senderId": "mockalice00000000000000000001", "text": "Oi Bob! 👋", "createdAt": 1767225700000 },
+    { "id": "mockmsg-2", "roomId": "dm_mockalice00000000000000000001_mockbob0000000000000000000002", "senderId": "mockbob0000000000000000000002", "text": "Oi Alice! Tudo certo por aqui.", "createdAt": 1767225800000 },
+    { "id": "mockmsg-3", "roomId": "dm_mockalice00000000000000000001_mockbob0000000000000000000002", "senderId": "mockalice00000000000000000001", "text": "Bora testar a chamada de vídeo?", "createdAt": 1767229200000 },
+    { "id": "mockmsg-4", "roomId": "mockroom-general", "senderId": "mockbob0000000000000000000002", "text": "Bem-vindos ao Code Call HQ!", "createdAt": 1767225900000 }
+  ],
+  "servers": [
+    {
+      "id": "mockserver-hq",
+      "name": "Code Call HQ",
+      "ownerId": "mockbob0000000000000000000002",
+      "members": ["mockalice00000000000000000001", "mockbob0000000000000000000002", "mockcarol000000000000000000003"],
+      "createdAt": 1767225600000
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+function o(){return[...crypto.getRandomValues(new Uint8Array(16))].map(t=>t.toString(16).padStart(2,"0")).join("")}async function a(n,t){let r=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(`${n}:${t}`));return[...new Uint8Array(r)].map(e=>e.toString(16).padStart(2,"0")).join("")}var i=4,s=64;export{o as a,a as b,i as c,s as d};

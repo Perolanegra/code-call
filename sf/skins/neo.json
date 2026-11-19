@@ -1,0 +1,25 @@
+{
+  "default": "fly",
+  "dir": "poses/code-call/neo",
+  "character": {
+    "name": "Neo",
+    "description": "homem jovem, cabelo castanho curto e repicado, sobretudo longo bege-creme aberto com gola larga e botões nas mangas, colete e calça pretos, camisa branca, gravata preta, sapatos pretos de couro",
+    "style": "anime detalhado de jogo de luta 2D, contorno escuro fino, sombreamento em cel com duas tonalidades, cores chapadas",
+    "styleRefs": ["poses/code-call/neo/fly.webp", "poses/code-call/neo/punch.webp"]
+  },
+  "poses": [
+    { "name": "fly", "description": "voando na horizontal, de bruços, braço da frente estendido com a mão aberta, sobretudo esvoaçando para trás", "tags": ["voo", "base", "fuga", "perseguição"] },
+    { "name": "enter", "description": "mergulhando para a frente com os dois braços estendidos, como quem atravessa uma porta ou passagem", "tags": ["entrar", "mergulho", "porta", "avanço"] },
+    { "name": "look_back", "description": "voando e olhando para trás por cima do ombro, boca aberta de susto, braço da frente estendido", "tags": ["olhar para trás", "susto", "fuga", "voo"] },
+    { "name": "punch", "description": "soco reto com o punho da frente estendido e o outro punho recolhido no peito, pernas dobradas no ar, grito de esforço", "tags": ["soco", "ataque", "golpe", "corpo a corpo", "rajada"] },
+    { "name": "kick", "description": "chute alto com a perna da frente esticada para a frente, braços abertos para equilibrar", "tags": ["chute", "ataque", "golpe", "corpo a corpo"] },
+    { "name": "hurt", "description": "encolhido e jogado para trás depois de levar um golpe, braços na frente do corpo, rosto contraído de dor", "tags": ["dor", "levar golpe", "atingido", "reação"] }
+  ],
+  "provisional": {
+    "dodge": { "from": "fly", "rotate": -24, "sx": 0.92, "sy": 1.06, "dy": -10, "description": "desvia de um tiro jogando o corpo para cima e para o lado, torcido, ainda voando", "tags": ["esquiva", "desvio", "voo"] },
+    "splat": { "from": "fly", "rotate": -70, "sx": 0.72, "sy": 1.18, "description": "esborrachado de cara contra uma superfície, corpo de pé colado nela, braços abertos e mãos espalmadas", "tags": ["bater de cara", "esborrachar", "colisão", "parede", "porta"] },
+    "fall": { "from": "fly", "rotate": 105, "sx": 0.95, "sy": 1, "description": "caindo de cabeça para baixo, desacordado, braços e pernas soltos", "tags": ["cair", "queda", "nocaute"] },
+    "dash": { "from": "fly", "rotate": 6, "sx": 1.16, "sy": 0.88, "description": "arrancada em altíssima velocidade, corpo esticado e reto, braços colados ao corpo, sobretudo reto para trás", "tags": ["dash", "arrancada", "velocidade", "avanço"] },
+    "kick_spin": { "from": "kick", "rotate": 0, "sx": 1, "sy": 1, "description": "chute giratório no ar, corpo girando de lado com a perna da frente estendida num arco e o sobretudo rodando junto", "tags": ["chute", "giro", "giratório", "ataque", "corpo a corpo"] }
+  }
+}

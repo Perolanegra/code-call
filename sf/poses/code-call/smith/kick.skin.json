@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "char": "smith",
+  "pose": "kick",
+  "image": "kick.webp",
+  "image2x": "kick@2x.webp",
+  "scale": 0.966,
+  "measure": {"headTop":[370,8],"chin":[410,190]},
+  "mesh": {"target":650,"boundaryStep":5,"seed":1},
+  "bones": [
+    {"name":"hips","parent":null,"head":[350,380],"tail":[380,340],"limit":12},
+    {"name":"torso","parent":"hips","head":[380,340],"tail":[370,200],"limit":12},
+    {"name":"neck","parent":"torso","head":[370,200],"tail":[385,170],"limit":12},
+    {"name":"head","parent":"neck","head":[385,170],"tail":[380,40],"limit":12},
+    {"name":"arm_front_upper","parent":"torso","head":[460,160],"tail":[580,160],"limit":12},
+    {"name":"arm_front_fore","parent":"arm_front_upper","head":[580,160],"tail":[690,175],"limit":12},
+    {"name":"hand_front","parent":"arm_front_fore","head":[690,175],"tail":[810,150],"limit":12},
+    {"name":"arm_back_upper","parent":"torso","head":[250,170],"tail":[120,190],"limit":12},
+    {"name":"arm_back_fore","parent":"arm_back_upper","head":[120,190],"tail":[60,300],"limit":12},
+    {"name":"hand_back","parent":"arm_back_fore","head":[60,300],"tail":[30,400],"limit":12},
+    {"name":"thigh_front","parent":"hips","head":[430,330],"tail":[680,320],"limit":12},
+    {"name":"shin_front","parent":"thigh_front","head":[680,320],"tail":[920,320],"limit":12},
+    {"name":"foot_front","parent":"shin_front","head":[920,320],"tail":[1010,250],"limit":12},
+    {"name":"thigh_back","parent":"hips","head":[330,420],"tail":[290,500],"limit":12},
+    {"name":"shin_back","parent":"thigh_back","head":[290,500],"tail":[470,530],"limit":12},
+    {"name":"foot_back","parent":"shin_back","head":[470,530],"tail":[550,650],"limit":12},
+    {"name":"jacket_tail_1","parent":"hips","head":[230,330],"tail":[160,380],"limit":25},
+    {"name":"jacket_tail_2","parent":"jacket_tail_1","head":[160,380],"tail":[120,450],"limit":25},
+    {"name":"jacket_tail_3","parent":"jacket_tail_2","head":[120,450],"tail":[100,540],"limit":25},
+    {"name":"tie_1","parent":"torso","head":[360,210],"tail":[300,170],"limit":25},
+    {"name":"tie_2","parent":"tie_1","head":[300,170],"tail":[200,130],"limit":25},
+    {"name":"tie_3","parent":"tie_2","head":[200,130],"tail":[30,70],"limit":25}
+  ],
+  "chains": [
+    {"name":"jacket","bones":["jacket_tail_1","jacket_tail_2","jacket_tail_3"],"stiffness":0.35,"damping":0.25},
+    {"name":"tie","bones":["tie_1","tie_2","tie_3"],"stiffness":0.25,"damping":0.2}
+  ]
+}

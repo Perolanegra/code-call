@@ -1,0 +1,24 @@
+{
+  "default": "fly",
+  "dir": "poses/code-call/smith",
+  "character": {
+    "name": "Smith",
+    "description": "homem adulto de feições duras, cabelo preto curto e espetado para trás com mechas grisalhas nas laterais, óculos escuros retangulares, terno preto de paletó longo, camisa branca, gravata vermelha comprida, sapatos pretos de couro",
+    "style": "anime detalhado de jogo de luta 2D, contorno escuro fino, sombreamento em cel com duas tonalidades, cores chapadas",
+    "styleRefs": ["poses/code-call/smith/fly.webp", "poses/code-call/smith/shoot.webp"]
+  },
+  "poses": [
+    { "name": "fly", "description": "voando na horizontal, de bruços, braços colados ao corpo para trás, paletó e gravata vermelha esvoaçando", "tags": ["voo", "base", "perseguição"] },
+    { "name": "shoot", "description": "voando e atirando com uma pistola segura com as duas mãos, braços estendidos para a frente, dentes cerrados", "tags": ["tiro", "pistola", "arma", "atirar", "ataque à distância"], "variants": [{ "name": "nogun", "kind": "hand", "description": "voando com os braços estendidos e as duas mãos fechadas, sem a pistola", "tags": ["sem arma", "desarmado", "mãos"] }] },
+    { "name": "splat", "description": "esborrachado de cara contra uma superfície, corpo de pé colado nela, braços para cima e mãos espalmadas", "tags": ["bater de cara", "esborrachar", "colisão", "porta", "parede"] },
+    { "name": "fall", "description": "caindo de cabeça para baixo, desacordado, braços e pernas soltos", "tags": ["cair", "queda", "nocaute"] },
+    { "name": "punch", "description": "soco longo e reto com o punho da frente, corpo inteiro inclinado no golpe, outro punho recolhido", "tags": ["soco", "soco forte", "ataque", "golpe", "corpo a corpo"] },
+    { "name": "punch_alt", "description": "soco curto e rápido com o punho da frente, corpo mais recolhido e pernas dobradas", "tags": ["soco", "jab", "ataque", "golpe", "corpo a corpo"] },
+    { "name": "kick", "description": "chute lateral alto com a perna da frente esticada, braços abertos", "tags": ["chute", "ataque", "golpe", "corpo a corpo"] },
+    { "name": "hurt_light", "description": "recuando encolhido depois de um golpe leve, mãos na frente do corpo", "tags": ["dor", "levar golpe", "atingido", "reação", "leve"] },
+    { "name": "hurt_heavy", "description": "dobrado de dor depois de um golpe forte, cabeça baixa, corpo curvado e pernas encolhidas", "tags": ["dor", "levar golpe", "atingido", "reação", "forte", "lançado"] }
+  ],
+  "provisional": {
+    "dash": { "from": "fly", "rotate": 6, "sx": 1.16, "sy": 0.88, "description": "arrancada em altíssima velocidade, corpo esticado e reto, braços colados ao corpo, paletó e gravata retos para trás", "tags": ["dash", "arrancada", "velocidade", "avanço"] }
+  }
+}

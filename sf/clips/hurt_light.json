@@ -1,0 +1,15 @@
+{
+  "id": "hurt_light",
+  "frames": 24,
+  "bones": {
+    "torso":           [{ "f": 0, "rot": 0 }, { "f": 2, "rot": -16, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "head":            [{ "f": 0, "rot": 0 }, { "f": 2, "rot": -30, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "arm_front_upper": [{ "f": 0, "rot": 0 }, { "f": 3, "rot": -34, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "arm_front_fore":  [{ "f": 0, "rot": 0 }, { "f": 3, "rot": 30, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "arm_back_upper":  [{ "f": 0, "rot": 0 }, { "f": 3, "rot": 26, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "thigh_front":     [{ "f": 0, "rot": 0 }, { "f": 3, "rot": 14, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }],
+    "shin_front":      [{ "f": 0, "rot": 0 }, { "f": 3, "rot": 20, "ease": "expoOut" }, { "f": 24, "rot": 0, "ease": "backOut" }]
+  },
+  "slots": { "head": [{ "f": 0, "slot": "head_shout" }, { "f": 18, "slot": "default" }] },
+  "root": [{ "f": 0, "x": 0 }, { "f": 2, "x": -12, "ease": "expoOut" }, { "f": 24, "x": 0, "ease": "backOut" }]
+}
